@@ -130,118 +130,12 @@ export function MetricsChart({
         </CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:px-4 pb-4">
-        {metricsData.length > 0 ? (
-          <ChartContainer
-            config={chartConfig}
-            className="aspect-auto h-[400px] w-full"
-          >
-            <LineChart
-              accessibilityLayer
-              data={metricsData}
-              margin={{
-                left: 8,
-                right: 8,
-                top: 8,
-                bottom: 8,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="createdAt"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={6}
-                minTickGap={50}
-                tick={{ fontSize: 11 }}
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleTimeString("en-US", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  });
-                }}
-              />
-              <YAxis
-                tickLine={false}
-                axisLine={false}
-                tickMargin={6}
-                width={70}
-                tick={{ fontSize: 11 }}
-                domain={['dataMin - 100', 'dataMax + 100']}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(1)}k`}
-              />
-              <ChartTooltip
-                content={({ active, payload }) => {
-                  if (!active || !payload || !payload.length) {
-                    return null;
-                  }
-
-                  const data = payload[0].payload as MetricData;
-                  const date = new Date(data.createdAt);
-
-                  return (
-                    <div className="rounded-lg border bg-background p-3 shadow-xl">
-                      <div>
-                        <ArcticonsDeepseek className="w-10 h-10 text-blue-500" />
-                        <span className="text-sm font-mono font-bold">
-                          Deepseek-R1-0528
-                        </span>
-                      </div>
-                      <div className="text-xs text-muted-foreground mb-2">
-                        {date.toLocaleString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between gap-4">
-                          <span className="text-sm font-medium">Cash:</span>
-                          <span className="text-sm font-mono font-bold">
-                            ${data.totalCashValue?.toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between gap-4">
-                          <span className="text-sm font-medium">Return:</span>
-                          <span
-                            className={`text-sm font-mono font-bold ${
-                              (data.currentTotalReturn || 0) >= 0
-                                ? "text-green-500"
-                                : "text-red-500"
-                            }`}
-                          >
-                            {((data.currentTotalReturn || 0) * 100).toFixed(2)}%
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                }}
-              />
-              <Line
-                dataKey="totalCashValue"
-                type="monotone"
-                stroke={DEEPSEEK_BLUE}
-                strokeWidth={2}
-                dot={(props) => (
-                  <CustomDot {...props} dataLength={metricsData.length} />
-                )}
-                activeDot={{
-                  r: 6,
-                  fill: DEEPSEEK_BLUE,
-                  stroke: "#fff",
-                  strokeWidth: 2,
-                }}
-              />
-            </LineChart>
-          </ChartContainer>
-        ) : (
-          <div className="h-[400px] flex items-center justify-center text-muted-foreground">
-            No metrics data available
+        <div className="h-[400px] flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-4xl font-bold text-muted-foreground mb-2">Coming Soon</div>
+            <div className="text-sm text-muted-foreground">Account value chart will be available soon</div>
           </div>
-        )}
+        </div>
       </CardContent>
     </Card>
   );
