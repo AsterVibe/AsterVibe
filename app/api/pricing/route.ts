@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { asterDex } from "@/lib/trading/aster";
+import { exchange } from "@/lib/trading/exchange";
 
 export const GET = async () => {
   try {
     // 使用真实的 Aster Dex API 获取价格数据
-    const tickers = await asterDex.fetchTickers();
+    const tickers = await exchange.fetchTickers();
     
     // 转换为项目需要的格式
     const pricing: Record<string, any> = {};

@@ -42,6 +42,9 @@ export const GET = async () => {
         currentTotalReturn: accountData.currentTotalReturn,
         availableCash: accountData.availableCash,
         currentPositionsValue: accountData.currentPositionsValue,
+        positions: accountData.positions,
+        sharpeRatio: accountData.sharpeRatio,
+        contractValue: accountData.contractValue,
         createdAt: new Date().toISOString(),
       };
 

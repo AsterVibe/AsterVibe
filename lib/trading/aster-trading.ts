@@ -3,7 +3,7 @@
  * 用于执行买卖交易操作
  */
 
-import { asterDex } from "./aster";
+import { exchange } from "./exchange";
 
 export interface TradeParams {
   symbol: string;
@@ -31,19 +31,19 @@ export async function executeBuy(params: TradeParams): Promise<TradeResult> {
     const { symbol, amount, price, leverage } = params;
     
     // 创建买单
-    const order = await asterDex.createOrder(
+    const order = await exchange.createOrder(
       symbol,
-      'buy',
+      'BUY',
+      price ? 'LIMIT' : 'MARKET',
       amount,
-      price,
-      price ? 'limit' : 'market'
+      price
     );
 
     return {
       success: true,
-      orderId: order.id,
-      executedPrice: order.price,
-      executedAmount: order.amount,
+      orderId: (order as any).orderId ?? (order as any).id,
+      executedPrice: (order as any).price,
+      executedAmount: (order as any).quantity ?? (order as any).amount,
     };
   } catch (error) {
     console.error('Buy execution failed:', error);
@@ -62,19 +62,19 @@ export async function executeSell(params: TradeParams): Promise<TradeResult> {
     const { symbol, amount, price } = params;
     
     // 创建卖单
-    const order = await asterDex.createOrder(
+    const order = await exchange.createOrder(
       symbol,
-      'sell',
+      'SELL',
+      price ? 'LIMIT' : 'MARKET',
       amount,
-      price,
-      price ? 'limit' : 'market'
+      price
     );
 
     return {
       success: true,
-      orderId: order.id,
-      executedPrice: order.price,
-      executedAmount: order.amount,
+      orderId: (order as any).orderId ?? (order as any).id,
+      executedPrice: (order as any).price,
+      executedAmount: (order as any).quantity ?? (order as any).amount,
     };
   } catch (error) {
     console.error('Sell execution failed:', error);
@@ -95,7 +95,7 @@ export async function setStopLossTakeProfit(
 ): Promise<boolean> {
   try {
     // 获取当前持仓
-    const positions = await asterDex.fetchPositions();
+    const positions = await exchange.fetchPositions();
     const position = positions.find(p => p.symbol === symbol);
     
     if (!position) {
@@ -119,7 +119,7 @@ export async function setStopLossTakeProfit(
  */
 export async function getTradingPairInfo(symbol: string) {
   try {
-    const ticker = await asterDex.fetchTicker(symbol);
+    const ticker = await exchange.fetchTicker(symbol);
     return {
       symbol: ticker.symbol,
       price: ticker.price,
@@ -137,18 +137,18 @@ export async function getTradingPairInfo(symbol: string) {
 /**
  * 检查订单状态
  */
-export async function checkOrderStatus(orderId: string) {
+export async function checkOrderStatus(symbol: string, orderId: string) {
   try {
-    const order = await asterDex.fetchOrder(orderId);
+    const order = await exchange.fetchOrder(symbol, orderId);
     return {
-      id: order.id,
-      status: order.status,
-      symbol: order.symbol,
-      side: order.side,
-      amount: order.amount,
-      price: order.price,
-      type: order.type,
-      createdAt: order.createdAt,
+      id: (order as any)?.orderId ?? (order as any)?.id,
+      status: (order as any)?.status,
+      symbol: (order as any)?.symbol,
+      side: (order as any)?.side,
+      amount: (order as any)?.quantity ?? (order as any)?.amount,
+      price: (order as any)?.price,
+      type: (order as any)?.type,
+      createdAt: new Date().toISOString(),
     };
   } catch (error) {
     console.error('Failed to check order status:', error);
@@ -159,9 +159,9 @@ export async function checkOrderStatus(orderId: string) {
 /**
  * 取消订单
  */
-export async function cancelOrder(orderId: string): Promise<boolean> {
+export async function cancelOrder(symbol: string, orderId: string): Promise<boolean> {
   try {
-    return await asterDex.cancelOrder(orderId);
+    return await exchange.cancelOrder(symbol, orderId);
   } catch (error) {
     console.error('Failed to cancel order:', error);
     return false;

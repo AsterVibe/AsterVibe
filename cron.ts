@@ -26,7 +26,7 @@ cron.schedule("*/10 * * * * *", async () => {
 });
 
 const runChatInterval = async () => {
-  console.log("Running task every 3 minutes");
+  console.log("Running task: AI decisions interval");
   const token = jwt.sign(
     {
       sub: "cron-token",
@@ -34,16 +34,16 @@ const runChatInterval = async () => {
     process.env.CRON_SECRET_KEY || ""
   );
 
-  await fetch(
-    `${process.env.NEXT_PUBLIC_URL}/api/cron/3-minutes-run-interval?token=${token}`,
-    {
-      method: "GET",
-    }
-  );
+  const sim = (process.env.SIM_TRADING || '').toLowerCase() === 'true';
+  const url = sim
+    ? `${process.env.NEXT_PUBLIC_URL}/api/model/chat`
+    : `${process.env.NEXT_PUBLIC_URL}/api/cron/3-minutes-run-interval?token=${token}`;
+
+  await fetch(url, { method: "GET" });
 };
 
-// every 3 minutes
-cron.schedule("*/3 * * * *", async () => {
+// every 1 minute for quicker testing
+cron.schedule("* * * * *", async () => {
   await runChatInterval();
 });
 

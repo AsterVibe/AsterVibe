@@ -1,5 +1,5 @@
 import { EMA, MACD, RSI, ATR } from "technicalindicators";
-import { asterDex } from "./aster";
+import { exchange } from "./exchange";
 
 export interface MarketState {
   // Current indicators
@@ -101,14 +101,14 @@ export async function getCurrentMarketState(
     const normalizedSymbol = symbol.includes("/") ? symbol : `${symbol}/USDT`;
 
     // Fetch 1-minute OHLCV data (last 100 candles for intraday analysis)
-    const ohlcv1m = await asterDex.fetchOHLCV(
+    const ohlcv1m = await exchange.fetchOHLCV(
       normalizedSymbol,
       "1m",
       100
     );
 
     // Fetch 4-hour OHLCV data (last 100 candles for longer-term context)
-    const ohlcv4h = await asterDex.fetchOHLCV(
+    const ohlcv4h = await exchange.fetchOHLCV(
       normalizedSymbol,
       "4h",
       100
@@ -160,12 +160,12 @@ export async function getCurrentMarketState(
 
     try {
       // Try to fetch open interest
-      const openInterest = await asterDex.fetchOpenInterest(normalizedSymbol);
+      const openInterest = await exchange.fetchOpenInterest(normalizedSymbol);
       openInterestData.latest = openInterest;
       openInterestData.average = openInterest; // Using same value as average
 
       // Try to fetch funding rate
-      fundingRate = await asterDex.fetchFundingRate(normalizedSymbol);
+      fundingRate = await exchange.fetchFundingRate(normalizedSymbol);
     } catch (error) {
       console.warn("Could not fetch open interest or funding rate:", error);
       // Continue with default values

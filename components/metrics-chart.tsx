@@ -167,7 +167,8 @@ export function MetricsChart({
                 tickMargin={6}
                 width={70}
                 tick={{ fontSize: 11 }}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+                domain={['dataMin - 100', 'dataMax + 100']}
+                tickFormatter={(value) => `$${(value / 1000).toFixed(1)}k`}
               />
               <ChartTooltip
                 content={({ active, payload }) => {

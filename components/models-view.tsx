@@ -493,12 +493,71 @@ export function ModelsView() {
           {activeTab === "model-chat" && renderModelChat()}
           {activeTab === "completed-trades" && renderCompletedTrades()}
           {activeTab === "positions" && (
-            <div className="text-center py-8 text-muted-foreground text-sm">
-              Positions view coming soon...
-            </div>
+            <PositionsView />
           )}
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function PositionsView() {
+  const [positions, setPositions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchPositions = useCallback(async () => {
+    try {
+      const res = await fetch('/api/model/positions');
+      const data = await res.json();
+      setPositions(data.data || []);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPositions();
+    const t = setInterval(fetchPositions, 15000);
+    return () => clearInterval(t);
+  }, [fetchPositions]);
+
+  if (loading) {
+    return <div className="text-center py-8 text-sm">Loading positions...</div>;
+  }
+
+  if (!positions.length) {
+    return <div className="text-center py-8 text-muted-foreground text-sm">No open positions</div>;
+  }
+
+  return (
+    <div className="space-y-3">
+      {positions.map((p, idx) => (
+        <Card key={idx} className="overflow-hidden">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className={`text-xs px-2 py-0.5 rounded ${p.side === 'LONG' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{p.side}</span>
+                <span className="font-mono font-bold">{p.symbol}</span>
+              </div>
+              <div className="text-xs text-muted-foreground">Size: {p.size} • Entry: ${p.entryPrice?.toFixed?.(2) ?? p.entryPrice}</div>
+            </div>
+            <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
+              <div>
+                <div className="text-xs text-muted-foreground">Mark</div>
+                <div className="font-mono">${p.markPrice?.toFixed?.(2) ?? p.markPrice}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">PnL</div>
+                <div className={`font-mono ${p.pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>${(p.pnl||0).toFixed?.(2) ?? p.pnl}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Margin</div>
+                <div className="font-mono">${p.margin?.toFixed?.(2) ?? p.margin}</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }
